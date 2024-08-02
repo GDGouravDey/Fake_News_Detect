@@ -19,6 +19,7 @@ def read_root():
 @app.post("/detect")
 def predict_news(input: Input):
     # Transform input data
+    print(input.News)
     data_in = [input.News]  # Make it a list to match the expected input shape
     transformed_data = vectorizer.transform(data_in)
     
