@@ -3,3 +3,4 @@ pydantic
 uvicorn
 scikit-learn
 streamlit
+seaborn
