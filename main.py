@@ -24,10 +24,9 @@ def read_root():
 
 @app.post("/detect")
 def predict_news(input: Input):
-    data_in = [input.News]  # Make it a list to match the expected input shape
+    data_in = [input.News]  
     transformed_data = vectorizer.transform(data_in)
     
-    # Make prediction
     prediction = model.predict(transformed_data)
     
     if prediction[0] == 0:
@@ -35,7 +34,6 @@ def predict_news(input: Input):
     else:
         return {'prediction': 'Reliable News'}
 
-# Define Streamlit app
 def fetch_article_content(url):
     try:
         article = Article(url)
@@ -78,16 +76,12 @@ def streamlit_app():
         else:
             st.warning("Please enter a URL.")
 
-# Run FastAPI server and Streamlit app
 def run_app():
-    # Run FastAPI app
     def run_fastapi():
         uvicorn.run(app, host="127.0.0.1", port=8000)
     
-    # Start FastAPI server in a separate thread
     threading.Thread(target=run_fastapi, daemon=True).start()
     
-    # Run Streamlit app
     streamlit_app()
 
 if __name__ == "__main__":
