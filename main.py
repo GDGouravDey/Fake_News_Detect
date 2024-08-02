@@ -36,49 +36,47 @@ def predict_news(input: Input):
         return {'prediction': 'Reliable News'}
 
 # Define Streamlit app
-def streamlit_app():
-    def fetch_article_content(url):
-        try:
-            article = Article(url)
-            article.download()
-            article.parse()
-            return article.text
-        except Exception as e:
-            return None
+def fetch_article_content(url):
+    try:
+        article = Article(url)
+        article.download()
+        article.parse()
+        return article.text
+    except Exception as e:
+        return None
 
-    def main():
-        st.title("Fake News Detector App")
-        url = st.text_input("Enter the news article or URL of the news article:")
-        
-        if st.button("Predict"):
-            if url:
-                if url.startswith("http") or url.startswith("www"):
-                    article_content = fetch_article_content(url)
-                else:
-                    article_content = url
-                
-                if article_content:
-                    input_string = {"News": article_content}
-                    
-                    try:
-                        response = requests.post(
-                            url="http://127.0.0.1:8000/detect",
-                            data=json.dumps(input_string)
-                        )
-                        
-                        if response.status_code == 200:
-                            result = response.json()
-                            st.success(f"Prediction: {result['prediction']}")
-                        else:
-                            st.error(f"Error: Received status code {response.status_code}")
-                    except Exception as e:
-                        st.error(f"An error occurred: {e}")
-                else:
-                    st.error("Failed to fetch article content. Please check the URL.")
+def streamlit_app():
+    st.title("Fake News Detector App")
+    url = st.text_input("Enter the news article or URL of the news article:")
+
+    if st.button("Predict"):
+        if url:
+            if url.startswith("http") or url.startswith("www"):
+                article_content = fetch_article_content(url)
             else:
-                st.warning("Please enter a URL.")
-    
-    main()
+                article_content = url
+            
+            if article_content:
+                input_string = {"News": article_content}
+                
+                try:
+                    response = requests.post(
+                        url="http://127.0.0.1:8000/detect",
+                        data=json.dumps(input_string),
+                        headers={"Content-Type": "application/json"}
+                    )
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        st.success(f"Prediction: {result['prediction']}")
+                    else:
+                        st.error(f"Error: Received status code {response.status_code}")
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
+            else:
+                st.error("Failed to fetch article content. Please check the URL.")
+        else:
+            st.warning("Please enter a URL.")
 
 # Run FastAPI server and Streamlit app
 def run_app():
@@ -87,7 +85,7 @@ def run_app():
         uvicorn.run(app, host="127.0.0.1", port=8000)
     
     # Start FastAPI server in a separate thread
-    threading.Thread(target=run_fastapi).start()
+    threading.Thread(target=run_fastapi, daemon=True).start()
     
     # Run Streamlit app
     streamlit_app()
