@@ -4,4 +4,4 @@ uvicorn
 scikit-learn
 streamlit
 seaborn
-newspaper
+newspaper3k
